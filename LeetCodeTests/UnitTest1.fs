@@ -91,3 +91,9 @@ let LengthOfLastWordTest () =
     Assert.AreEqual(5, Easy.LengthOfLastWord "Hello World")
     Assert.AreEqual(4, Easy.LengthOfLastWord "   fly me   to   the moon  ")
     Assert.AreEqual(6, Easy.LengthOfLastWord "luffy is still joyboy")
+
+[<Test>]
+let ArabicToRomanTest () =
+    Assert.AreEqual("MMMDCCXLIX", Medium.ArabicToRoman 3749)
+    Assert.AreEqual("LVIII", Medium.ArabicToRoman 58)
+    Assert.AreEqual("MCMXCIV", Medium.ArabicToRoman 1994)
