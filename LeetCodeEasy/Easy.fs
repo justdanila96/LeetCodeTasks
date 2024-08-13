@@ -5,26 +5,12 @@ module Easy =
     // Наибольшая общая подстрока (с начала слова)
     let longestCommonPrefix words =
 
-        let findShortestWord = List.minBy String.length
-        let shortestWord = findShortestWord words
+        let shortestWord = words |> List.minBy String.length
 
-        let allWordsHaveSameChar index =
-            words |> List.forall (fun word -> word[index] = shortestWord[index])
-
-        let rec findPrefixLength i =
-            let endOfString = i >= shortestWord.Length
-            let someWordHasWrongSymbol = i |> allWordsHaveSameChar |> not
-
-            if endOfString || someWordHasWrongSymbol then
-                i
-            else
-                findPrefixLength (i + 1)
-
-        0
-        |> findPrefixLength
-        |> function
-            | 0 -> ""
-            | length -> shortestWord.Substring(0, length)
+        shortestWord
+        |> Seq.indexed
+        |> Seq.takeWhile (fun (i, char) -> words |> Seq.forall (fun word -> word[i] = char))
+        |> fun res -> shortestWord.Substring(0, Seq.length res)
 
     // Задача FizzBuzz
     let FizzBuzz n =
@@ -34,12 +20,12 @@ module Easy =
             | k when k % 3 = 0 && k % 5 <> 0 -> "Fizz"
             | k when k % 5 = 0 && k % 3 <> 0 -> "Buzz"
             | k when k % 3 = 0 && k % 5 = 0 -> "FizzBuzz"
-            | i -> $"{i}"
+            | i -> string i
 
         [ 1..n ] |> List.map convert
 
     // Являются ли два слова анаграммами друг друга?
-    let IsAnagram s t =
+    let IsAnagram str1 str2 =
 
         let setNewValue =
             function
@@ -47,21 +33,15 @@ module Easy =
             | None -> 1
             >> Some
 
-        let rec fillMap i value dict =
-            if i >= String.length value then
-                dict
-            else
-                dict |> Map.change value[i] setNewValue |> fillMap (i + 1) value
+        let rec fillMap charlist map =
+            match charlist with
+            | head :: tail -> map |> Map.change head setNewValue |> fillMap tail
+            | [] -> map
 
-        let convertToMap word = fillMap 0 word (Map [])
+        let convertToMap str =
+            str |> Seq.toList |> fillMap <| (Map [])
 
-        let containsKeyValuePair dict key value =
-            dict |> Map.tryFind key |> Option.contains value
-
-        let mapsAreEqual dict1 dict2 =
-            dict1 |> Map.forall (containsKeyValuePair dict2)
-
-        (convertToMap s, convertToMap t) ||> mapsAreEqual
+        (convertToMap str1, convertToMap str2) ||> (=)
 
     // Быстрое извлечение квадратного корня
     let MySqrt x =
@@ -78,7 +58,7 @@ module Easy =
 
         1 <<< 30 |> setd |> calc x 0
 
-
+    // Перевод чисел из римских в арабские
     let RomanToArabic s =
 
         let dictionary =

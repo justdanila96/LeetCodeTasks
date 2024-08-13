@@ -40,6 +40,8 @@ let LongestCommonPrefixTest () =
 
     Assert.AreEqual("fl", Easy.longestCommonPrefix [ "flower"; "flow"; "flight" ])
     Assert.AreEqual("", Easy.longestCommonPrefix [ "dog"; "racecar"; "car" ])
+    Assert.AreEqual("a", Easy.longestCommonPrefix [ "a"; "a"; "a" ])
+    Assert.AreEqual("", Easy.longestCommonPrefix [ ""; "abc"; "ert" ])
 
 [<Test>]
 let FizzBuzzTest () =
