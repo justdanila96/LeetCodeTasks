@@ -33,6 +33,7 @@ let RomanToArabicTest () =
     Assert.AreEqual(3, Easy.RomanToArabic "III")
     Assert.AreEqual(58, Easy.RomanToArabic "LVIII")
     Assert.AreEqual(1994, Easy.RomanToArabic "MCMXCIV")
+    Assert.AreEqual(3999, Easy.RomanToArabic "MMMCMXCIX")
 
 [<Test>]
 let LongestCommonPrefixTest () =

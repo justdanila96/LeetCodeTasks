@@ -78,40 +78,38 @@ module Easy =
 
         1 <<< 30 |> setd |> calc x 0
 
-    // Перевод римских цифр в арабские
+
     let RomanToArabic s =
 
-        let dict =
+        let dictionary =
             Map
-                [ ('I', 1)
-                  ('V', 5)
-                  ('X', 10)
-                  ('L', 50)
-                  ('C', 100)
-                  ('D', 500)
-                  ('M', 1000) ]
+                [ ("I", 1)
+                  ("IV", 4)
+                  ("V", 5)
+                  ("IX", 9)
+                  ("X", 10)
+                  ("XL", 40)
+                  ("L", 50)
+                  ("XC", 90)
+                  ("C", 100)
+                  ("CD", 400)
+                  ("D", 500)
+                  ("CM", 900)
+                  ("M", 1000) ]
 
-        let convert =
+        let rec convChunk =
             function
-            | [ digit ] -> dict[digit]
-            | [ 'I'; 'V' ] -> 4
-            | [ 'I'; 'X' ] -> 9
-            | [ 'I'; digit ] -> 1 + dict[digit]
-            | [ 'X'; 'L' ] -> 40
-            | [ 'X'; 'C' ] -> 90
-            | [ 'X'; digit ] -> 10 + dict[digit]
-            | [ 'C'; 'D' ] -> 400
-            | [ 'C'; 'M' ] -> 900
-            | [ 'C'; digit ] -> 100 + dict[digit]
-            | [ a; b ] -> dict[a] + dict[b]
+            | [| c |] -> dictionary.[c]
+            | [| a; b |] ->
+                dictionary
+                |> Map.tryFind (b + a)
+                |> Option.defaultValue (convChunk [| a |] + convChunk [| b |])
             | _ -> failwith "Wrong input data!"
 
-        s
-        |> Seq.toList
-        |> List.rev
-        |> List.chunkBySize 2
-        |> List.map (List.rev >> convert)
-        |> List.sum
+        let convert =
+            Seq.rev >> Seq.map string >> Seq.chunkBySize 2 >> Seq.map convChunk >> Seq.sum
+
+        convert s
 
     // Перевод числа в номер колонки Excel
     let ExcelSheetColumnTitle columnNumber =
