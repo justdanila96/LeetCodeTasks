@@ -4,7 +4,7 @@ module Medium =
 
     let ArabicToRoman arabic =
 
-        let dictionary =
+        let convMap =
             Map
                 [ (1, "I")
                   (4, "IV")
@@ -21,23 +21,26 @@ module Medium =
                   (1000, "M") ]
 
         let rec convDigit coef digit =
-
-            let convcoef = convDigit coef
+            let conv = convDigit coef
 
             match digit with
             | 1
             | 4
             | 5
-            | 9 -> dictionary.[digit * coef]
-            | k when k > 1 && k < 4 -> convcoef 1 |> String.replicate k
-            | k when k > 5 && k <= 8 -> convcoef 5 + (convcoef 1 |> String.replicate (k - 5))
-            | _ -> failwith "Something's wrong!"
+            | 9 -> convMap.[digit * coef]
+            | 2
+            | 3 as n -> conv 1 |> String.replicate n
+            | 6
+            | 7
+            | 8 as n -> conv 5 + conv (n - 5)
+            | _ -> ""
 
         let rec convert coef number result =
             if number = 0 then
                 result
             else
-                convDigit (pown 10 coef) (number % 10) + result
-                |> convert (coef + 1) (number / 10)
+                let struct (div, rem) = System.Math.DivRem(number, 10)
+                let roman = convDigit coef rem
+                convert (10 * coef) div (roman + result)
 
-        convert 0 arabic ""
+        convert 1 arabic ""

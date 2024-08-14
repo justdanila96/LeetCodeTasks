@@ -61,7 +61,7 @@ module Easy =
     // Перевод чисел из римских в арабские
     let RomanToArabic s =
 
-        let dictionary =
+        let convMap =
             Map
                 [ ("I", 1)
                   ("IV", 4)
@@ -77,14 +77,13 @@ module Easy =
                   ("CM", 900)
                   ("M", 1000) ]
 
-        let rec convChunk =
+        let convChunk =
             function
-            | [| c |] -> dictionary.[c]
             | [| a; b |] ->
-                dictionary
+                convMap
                 |> Map.tryFind (b + a)
-                |> Option.defaultValue (convChunk [| a |] + convChunk [| b |])
-            | _ -> failwith "Wrong input data!"
+                |> Option.defaultValue (convMap.[a] + convMap.[b])
+            | [| c |] -> convMap.[c]
 
         let convert =
             Seq.rev >> Seq.map string >> Seq.chunkBySize 2 >> Seq.map convChunk >> Seq.sum
