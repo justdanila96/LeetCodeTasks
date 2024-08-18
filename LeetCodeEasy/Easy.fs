@@ -9,7 +9,7 @@ module Easy =
 
         shortestWord
         |> Seq.indexed
-        |> Seq.takeWhile (fun (i, char) -> words |> Seq.forall (fun word -> word[i] = char))
+        |> Seq.takeWhile (fun (i, char) -> words |> Seq.forall (fun word -> word.[i] = char))
         |> fun res -> shortestWord.Substring(0, Seq.length res)
 
     // Задача FizzBuzz
@@ -24,8 +24,7 @@ module Easy =
 
         [ 1..n ] |> List.map convert
 
-    // Являются ли два слова анаграммами друг друга?
-    let IsAnagram str1 str2 =
+    let private countDuplicates list =
 
         let setNewValue =
             function
@@ -33,15 +32,19 @@ module Easy =
             | None -> 1
             >> Some
 
-        let rec fillMap charlist map =
+        let change map symbol = map |> Map.change symbol setNewValue
+
+        let rec fillMap map charlist =
             match charlist with
-            | head :: tail -> map |> Map.change head setNewValue |> fillMap tail
+            | head :: tail -> head |> change map |> fillMap <| tail
             | [] -> map
 
-        let convertToMap str =
-            str |> Seq.toList |> fillMap <| (Map [])
+        list |> fillMap (Map [])
 
-        (convertToMap str1, convertToMap str2) ||> (=)
+    // Являются ли два слова анаграммами друг друга?
+    let IsAnagram str1 str2 =
+        let seqToMap = Seq.toList >> countDuplicates
+        (seqToMap str1, seqToMap str2) ||> (=)
 
     // Быстрое извлечение квадратного корня
     let MySqrt x =
@@ -77,18 +80,20 @@ module Easy =
                   ("CM", 900)
                   ("M", 1000) ]
 
-        let convChunk =
+        let convert =
             function
             | [| a; b |] ->
                 convMap
                 |> Map.tryFind (b + a)
                 |> Option.defaultValue (convMap.[a] + convMap.[b])
             | [| c |] -> convMap.[c]
+            | _ -> failwith "Wrong data"
 
-        let convert =
-            Seq.rev >> Seq.map string >> Seq.chunkBySize 2 >> Seq.map convChunk >> Seq.sum
-
-        convert s
+        s
+        |> Seq.rev
+        |> Seq.map string
+        |> Seq.chunkBySize 2
+        |> Seq.fold (fun acc i -> acc + convert i) 0
 
     // Перевод числа в номер колонки Excel
     let ExcelSheetColumnTitle columnNumber =
@@ -96,15 +101,12 @@ module Easy =
         let digitToLetter k =
             System.Char.ConvertFromUtf32(k + 65) |> string
 
-        let N = 26
-
-        let rec convert col s =
+        let rec convert col result =
             if col <= 0 then
-                s
+                result
             else
-                let div = (col - 1) / N
-                let rem = (col - 1) % N
-                rem |> digitToLetter |> convert div |> (fun k -> k + s)
+                let struct (div, rem) = System.Math.DivRem(col - 1, 26)
+                rem |> digitToLetter |> convert div |> (+) <| result
 
         convert columnNumber ""
 
@@ -130,3 +132,28 @@ module Easy =
         |> Seq.skipWhile ((=) ' ')
         |> Seq.takeWhile ((<>) ' ')
         |> Seq.length
+
+    // Пронумеровать дубликаты в списке файлов и отсортировать лексикографически
+    let hugeDownload files =
+
+        let getParts (delimiter: char) (str: string) =
+            let delimiterIndex = str |> Seq.findIndex ((=) delimiter)
+            let part1 = str.[.. delimiterIndex - 1]
+            let part2 = string delimiter
+            let part3 = str.[delimiterIndex + 1 ..]
+            (part1, part2, part3)
+
+        files
+        |> countDuplicates
+        |> Map.toList
+        |> List.collect (fun (fileName, fileCount) ->
+            [ 0 .. fileCount - 1 ]
+            |> List.map (fun i ->
+                let number = if i = 0 then "" else $"({i})"
+
+                if fileName |> String.exists ((=) '.') then
+                    let name, dot, ext = fileName |> getParts '.'
+                    name + number + dot + ext
+                else
+                    fileName + number))
+        |> List.sort
