@@ -7,9 +7,13 @@ module Easy =
 
         let shortestWord = words |> List.minBy String.length
 
+        let allWordsHaveSameChar (index, char) =
+            words |> Seq.except <| Seq.singleton shortestWord
+            |> Seq.forall (fun word -> word.[index] = char)
+
         shortestWord
         |> Seq.indexed
-        |> Seq.takeWhile (fun (i, char) -> words |> Seq.forall (fun word -> word.[i] = char))
+        |> Seq.takeWhile allWordsHaveSameChar
         |> fun res -> shortestWord.Substring(0, Seq.length res)
 
     // Задача FizzBuzz
@@ -25,26 +29,13 @@ module Easy =
         [ 1..n ] |> List.map convert
 
     let private countDuplicates list =
-
-        let setNewValue =
-            function
-            | Some i -> i + 1
-            | None -> 1
-            >> Some
-
-        let change map symbol = map |> Map.change symbol setNewValue
-
-        let rec fillMap map charlist =
-            match charlist with
-            | head :: tail -> head |> change map |> fillMap <| tail
-            | [] -> map
-
-        list |> fillMap (Map [])
+        let setValue value = (1, value) ||> Option.fold (+) |> Some
+        (Map [], list) ||> List.fold (fun map key -> map |> Map.change key setValue)
 
     // Являются ли два слова анаграммами друг друга?
     let IsAnagram str1 str2 =
-        let seqToMap = Seq.toList >> countDuplicates
-        (seqToMap str1, seqToMap str2) ||> (=)
+        let strToMap = Seq.toList >> countDuplicates
+        (strToMap str1, strToMap str2) ||> (=)
 
     // Быстрое извлечение квадратного корня
     let MySqrt x =
@@ -93,7 +84,7 @@ module Easy =
         |> Seq.rev
         |> Seq.map string
         |> Seq.chunkBySize 2
-        |> Seq.fold (fun acc i -> acc + convert i) 0
+        |> Seq.fold (fun sum romanDigit -> sum + convert romanDigit) 0
 
     // Перевод числа в номер колонки Excel
     let ExcelSheetColumnTitle columnNumber =
@@ -122,7 +113,7 @@ module Easy =
     let IndexOfFirstOccurrence haystack needle =
         haystack
         |> Seq.windowed (String.length needle)
-        |> Seq.tryFindIndex (fun window -> (window, needle) ||> Seq.forall2 (=))
+        |> Seq.tryFindIndex (fun substring -> (substring, needle) ||> Seq.forall2 (=))
         |> Option.defaultValue -1
 
     // Длина последнего слова
