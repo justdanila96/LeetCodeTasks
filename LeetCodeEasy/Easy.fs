@@ -8,8 +8,7 @@ module Easy =
         let shortestWord = words |> List.minBy String.length
 
         let allWordsHaveSameChar (index, char) =
-            words |> Seq.except <| Seq.singleton shortestWord
-            |> Seq.forall (fun word -> word.[index] = char)
+            words |> Seq.forall (fun word -> word.[index] = char)
 
         shortestWord
         |> Seq.indexed
@@ -28,14 +27,14 @@ module Easy =
 
         [ 1..n ] |> List.map convert
 
-    let private countDuplicates list =
-        let setValue value = (1, value) ||> Option.fold (+) |> Some
-        (Map [], list) ||> List.fold (fun map key -> map |> Map.change key setValue)
-
     // Являются ли два слова анаграммами друг друга?
     let IsAnagram str1 str2 =
-        let strToMap = Seq.toList >> countDuplicates
-        (strToMap str1, strToMap str2) ||> (=)
+        let setValue value = (1, value) ||> Option.fold (+) |> Some
+
+        let countDuplicates seq =
+            (Map [], seq) ||> Seq.fold (fun map key -> map |> Map.change key setValue)
+
+        (countDuplicates str1, countDuplicates str2) ||> (=)
 
     // Быстрое извлечение квадратного корня
     let MySqrt x =
@@ -84,22 +83,20 @@ module Easy =
         |> Seq.rev
         |> Seq.map string
         |> Seq.chunkBySize 2
-        |> Seq.fold (fun sum romanDigit -> sum + convert romanDigit) 0
+        |> Seq.fold (fun sum chunk -> sum + convert chunk) 0
 
     // Перевод числа в номер колонки Excel
     let ExcelSheetColumnTitle columnNumber =
-
-        let digitToLetter k =
-            System.Char.ConvertFromUtf32(k + 65) |> string
-
-        let rec convert col result =
-            if col <= 0 then
-                result
+        columnNumber
+        |> Seq.unfold (fun d ->
+            if d = 0 then
+                None
             else
-                let struct (div, rem) = System.Math.DivRem(col - 1, 26)
-                rem |> digitToLetter |> convert div |> (+) <| result
-
-        convert columnNumber ""
+                let struct (div, rem) = System.Math.DivRem(d - 1, 26)
+                let letter = System.Char.ConvertFromUtf32(rem + 65)
+                Some(string letter, div))
+        |> Seq.rev
+        |> String.concat ""
 
     // Является ли строка палиндромом
     let IsPalindrome input =
@@ -135,8 +132,7 @@ module Easy =
             (part1, part2, part3)
 
         files
-        |> countDuplicates
-        |> Map.toList
+        |> List.countBy (fun file -> file)
         |> List.collect (fun (fileName, fileCount) ->
             [ 0 .. fileCount - 1 ]
             |> List.map (fun i ->
