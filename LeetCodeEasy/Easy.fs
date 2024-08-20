@@ -122,13 +122,14 @@ module Easy =
         files
         |> List.countBy id
         |> List.collect (fun (fileName: string, count) ->
-            let dotIndex = fileName |> Seq.tryFindIndexBack ((=) '.')
+
+            let createNewName number =
+                fileName
+                |> Seq.tryFindIndexBack ((=) '.')
+                |> function
+                    | Some index -> fileName.Insert(index, number)
+                    | None -> fileName + number
 
             [ 0 .. count - 1 ]
-            |> List.map (fun i ->
-                let number = if i = 0 then "" else $"({i})"
-
-                match dotIndex with
-                | Some i -> fileName.Insert(i, number)
-                | None -> fileName + number))
+            |> List.map (fun i -> createNewName <| if i = 0 then "" else $"({i})"))
         |> List.sort
