@@ -46,7 +46,7 @@ module Easy =
                 c
             else
                 let cshr = c >>> 1
-                (if k >= c + d then (k - c - d, cshr + d) else (k, cshr)) ||> calc (d >>> 2)
+                (if k >= c + d then k - c - d, cshr + d else k, cshr) ||> calc (d >>> 2)
 
         1 <<< 30 |> setd |> calc <|| (x, 0)
 
@@ -119,21 +119,16 @@ module Easy =
 
     // Пронумеровать дубликаты в списке файлов и отсортировать лексикографически
     let hugeDownload files =
-
-        let getParts (delimiter: char) (str: string) =
-            let index = str |> Seq.findIndex ((=) delimiter)
-            str.[.. index - 1], string delimiter, str.[index + 1 ..]
-
         files
-        |> List.countBy (fun file -> file)
-        |> List.collect (fun (fileName, count) ->
+        |> List.countBy id
+        |> List.collect (fun (fileName: string, count) ->
+            let dotIndex = fileName |> Seq.tryFindIndexBack ((=) '.')
+
             [ 0 .. count - 1 ]
             |> List.map (fun i ->
                 let number = if i = 0 then "" else $"({i})"
 
-                if fileName |> String.exists ((=) '.') then
-                    let name, dot, ext = fileName |> getParts '.'
-                    name + number + dot + ext
-                else
-                    fileName + number))
+                match dotIndex with
+                | Some i -> fileName.Insert(i, number)
+                | None -> fileName + number))
         |> List.sort

@@ -114,6 +114,7 @@ let HugeDownloadTest () =
           "sol13.c"
           "sol123.c"
           "song.mp3" ]
+        |> Easy.hugeDownload
 
     let result =
         [ "data.dat"
@@ -128,4 +129,4 @@ let HugeDownloadTest () =
           "song(1).mp3"
           "song.mp3" ]
 
-    Assert.AreEqual(Easy.hugeDownload files, result)
+    Assert.AreEqual(files, result)
