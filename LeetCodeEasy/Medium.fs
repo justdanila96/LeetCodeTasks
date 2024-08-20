@@ -2,7 +2,7 @@
 
 module Medium =
 
-    let ArabicToRoman arabic =
+    let ArabicToRoman n =
 
         let convMap =
             Map
@@ -20,8 +20,8 @@ module Medium =
                   (900, "CM")
                   (1000, "M") ]
 
-        let rec convDigit coef digit =
-            let conv = convDigit coef
+        let rec toRoman coef digit =
+            let conv = toRoman coef
 
             match digit with
             | 1
@@ -35,12 +35,14 @@ module Medium =
             | 8 as n -> conv 5 + conv (n - 5)
             | _ -> ""
 
-        let rec convert coef number result =
-            if number = 0 then
-                result
-            else
-                let struct (div, rem) = System.Math.DivRem(number, 10)
-                let roman = convDigit coef rem
-                convert (10 * coef) div (roman + result)
-
-        convert 1 arabic ""
+        (n, 1)
+        |> Seq.unfold (fun (value, mult) ->
+            match value with
+            | 0 -> None
+            | _ ->
+                let struct (newValue, arabic) = System.Math.DivRem(value, 10)
+                let roman = toRoman mult arabic
+                let newState = (newValue, mult * 10)
+                Some(roman, newState))
+        |> Seq.rev
+        |> String.concat ""

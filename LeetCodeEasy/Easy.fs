@@ -31,25 +31,24 @@ module Easy =
     let IsAnagram str1 str2 =
         let setValue value = (1, value) ||> Option.fold (+) |> Some
 
-        let countDuplicates seq =
+        let countBySymbol seq =
             (Map [], seq) ||> Seq.fold (fun map key -> map |> Map.change key setValue)
 
-        (countDuplicates str1, countDuplicates str2) ||> (=)
+        (countBySymbol str1, countBySymbol str2) ||> (=)
 
     // Быстрое извлечение квадратного корня
     let MySqrt x =
 
-        let rec setd d = if d <= x then d else d >>> 2
+        let rec setd d = if d <= x then d else setd (d >>> 2)
 
-        let rec calc k c d =
+        let rec calc d k c =
             if d = 0 then
                 c
-            else if k >= c + d then
-                (k - c - d, (c >>> 1) + d, d >>> 2) |||> calc
             else
-                (k, c >>> 1, d >>> 2) |||> calc
+                let cshr = c >>> 1
+                (if k >= c + d then (k - c - d, cshr + d) else (k, cshr)) ||> calc (d >>> 2)
 
-        1 <<< 30 |> setd |> calc x 0
+        1 <<< 30 |> setd |> calc <|| (x, 0)
 
     // Перевод чисел из римских в арабские
     let RomanToArabic s =
@@ -70,28 +69,25 @@ module Easy =
                   ("CM", 900)
                   ("M", 1000) ]
 
-        let convert =
-            function
+        let convert acc chunk =
+            match chunk with
             | [| a; b |] ->
                 convMap
                 |> Map.tryFind (b + a)
                 |> Option.defaultValue (convMap.[a] + convMap.[b])
             | [| c |] -> convMap.[c]
             | _ -> failwith "Wrong data"
+            |> (+) acc
 
-        s
-        |> Seq.rev
-        |> Seq.map string
-        |> Seq.chunkBySize 2
-        |> Seq.fold (fun sum chunk -> sum + convert chunk) 0
+        s |> Seq.rev |> Seq.map string |> Seq.chunkBySize 2 |> Seq.fold convert 0
 
     // Перевод числа в номер колонки Excel
     let ExcelSheetColumnTitle columnNumber =
         columnNumber
         |> Seq.unfold (fun d ->
-            if d = 0 then
-                None
-            else
+            match d with
+            | 0 -> None
+            | _ ->
                 let struct (div, rem) = System.Math.DivRem(d - 1, 26)
                 let letter = System.Char.ConvertFromUtf32(rem + 65)
                 Some(string letter, div))
@@ -125,16 +121,13 @@ module Easy =
     let hugeDownload files =
 
         let getParts (delimiter: char) (str: string) =
-            let delimiterIndex = str |> Seq.findIndex ((=) delimiter)
-            let part1 = str.[.. delimiterIndex - 1]
-            let part2 = string delimiter
-            let part3 = str.[delimiterIndex + 1 ..]
-            (part1, part2, part3)
+            let index = str |> Seq.findIndex ((=) delimiter)
+            str.[.. index - 1], string delimiter, str.[index + 1 ..]
 
         files
         |> List.countBy (fun file -> file)
-        |> List.collect (fun (fileName, fileCount) ->
-            [ 0 .. fileCount - 1 ]
+        |> List.collect (fun (fileName, count) ->
+            [ 0 .. count - 1 ]
             |> List.map (fun i ->
                 let number = if i = 0 then "" else $"({i})"
 
