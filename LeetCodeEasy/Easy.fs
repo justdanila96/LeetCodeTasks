@@ -118,23 +118,22 @@ module Easy =
         |> Seq.length
 
     // Пронумеровать дубликаты в списке файлов и отсортировать лексикографически
-    let hugeDownload (files: string list) =
+    let hugeDownload files =
+
+        let addNumber number (str: string) =
+            str
+            |> Seq.tryFindIndexBack ((=) '.')
+            |> function
+                | Some index -> str.Insert(index, number)
+                | None -> str + number
+
+        let rename name number =
+            name
+            |> match number with
+               | 1 -> id
+               | n -> addNumber $"({n - 1})"
+
         files
         |> List.countBy id
-        |> List.collect (fun (fileName, count) ->
-
-            let addNumber number str =
-                str
-                |> Seq.tryFindIndexBack ((=) '.')
-                |> function
-                    | Some index -> fileName.Insert(index, number)
-                    | None -> fileName + number
-
-            let createNewName number =
-                fileName
-                |> match number with
-                   | 0 -> id
-                   | _ -> addNumber $"({number})"
-
-            [ 0 .. count - 1 ] |> List.map createNewName)
+        |> List.collect (fun (name, cnt) -> rename name |> List.map <| [ 1..cnt ])
         |> List.sort
