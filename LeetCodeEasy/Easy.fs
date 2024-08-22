@@ -39,14 +39,14 @@ module Easy =
     // Быстрое извлечение квадратного корня
     let MySqrt x =
 
-        let rec setd d = if d <= x then d else setd (d >>> 2)
+        let rec setd d = if d <= x then d else d >>> 2 |> setd
 
         let rec calc d k c =
-            if d = 0 then
-                c
-            else
-                let cshr = c >>> 1
-                (if k >= c + d then k - c - d, cshr + d else k, cshr) ||> calc (d >>> 2)
+            match d with
+            | 0 -> c
+            | _ ->
+                let cc = c >>> 1
+                d >>> 2 |> calc <|| if k >= c + d then k - c - d, cc + d else k, cc
 
         1 <<< 30 |> setd |> calc <|| (x, 0)
 
@@ -118,18 +118,23 @@ module Easy =
         |> Seq.length
 
     // Пронумеровать дубликаты в списке файлов и отсортировать лексикографически
-    let hugeDownload files =
+    let hugeDownload (files: string list) =
         files
         |> List.countBy id
-        |> List.collect (fun (fileName: string, count) ->
+        |> List.collect (fun (fileName, count) ->
 
-            let createNewName number =
-                fileName
+            let addNumber number str =
+                str
                 |> Seq.tryFindIndexBack ((=) '.')
                 |> function
                     | Some index -> fileName.Insert(index, number)
                     | None -> fileName + number
 
-            [ 0 .. count - 1 ]
-            |> List.map (fun i -> createNewName <| if i = 0 then "" else $"({i})"))
+            let createNewName number =
+                fileName
+                |> match number with
+                   | 0 -> id
+                   | _ -> addNumber $"({number})"
+
+            [ 0 .. count - 1 ] |> List.map createNewName)
         |> List.sort

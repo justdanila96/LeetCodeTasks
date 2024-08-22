@@ -28,11 +28,14 @@ module Medium =
             | 4
             | 5
             | 9 -> convMap.[digit * coef]
+
             | 2
             | 3 as n -> conv 1 |> String.replicate n
+
             | 6
             | 7
             | 8 as n -> conv 5 + conv (n - 5)
+
             | _ -> ""
 
         (n, 1)
