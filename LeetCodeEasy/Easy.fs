@@ -5,10 +5,10 @@ module Easy =
     // Наибольшая общая подстрока (с начала слова)
     let longestCommonPrefix words =
 
-        let shortestWord = words |> List.minBy String.length
+        let shortestWord = words |> Array.minBy String.length
 
         let allWordsHaveSameChar (index, char) =
-            words |> Seq.forall (fun word -> word.[index] = char)
+            words |> Array.forall (fun word -> word.[index] = char)
 
         shortestWord
         |> Seq.indexed
@@ -89,8 +89,8 @@ module Easy =
             | 0 -> None
             | _ ->
                 let struct (div, rem) = System.Math.DivRem(d - 1, 26)
-                let letter = System.Char.ConvertFromUtf32(rem + 65)
-                Some(string letter, div))
+                let letter = rem + 65 |> char |> string
+                Some(letter, div))
         |> Seq.rev
         |> String.concat ""
 
@@ -130,10 +130,10 @@ module Easy =
         let rename name number =
             name
             |> match number with
-               | 1 -> id
-               | n -> addNumber $"({n - 1})"
+               | 0 -> id
+               | n -> addNumber $"({n})"
 
         files
-        |> List.countBy id
-        |> List.collect (fun (name, cnt) -> rename name |> List.map <| [ 1..cnt ])
-        |> List.sort
+        |> Array.countBy id
+        |> Array.collect (fun (name, cnt) -> rename name |> Array.map <| [| 0 .. cnt - 1 |])
+        |> Array.sort
