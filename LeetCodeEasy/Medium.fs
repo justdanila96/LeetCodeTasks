@@ -49,3 +49,52 @@ module Medium =
                 Some(roman, newState))
         |> Seq.rev
         |> String.concat ""
+
+    let MessageVariants s friends =
+
+        let update value setopt =
+            match setopt with
+            | Some set -> set |> Set.add value
+            | None -> Set[value]
+            |> Some
+
+        let graph =
+            (Map.empty, friends)
+            ||> List.fold (fun map (a, b) ->
+                let updateAB = a |> Map.change <| update b
+                let updateBA = b |> Map.change <| update a
+                map |> updateAB |> updateBA)
+
+        let rec bfs queue d p =
+            match queue with
+            | [] -> p
+            | v :: q ->
+                ((q, d, p), graph.[v])
+                ||> Set.fold (fun (q, d, p) u ->
+                    match d |> Map.find u with
+                    | -1 ->
+                        let q = q @ [ u ]
+                        let d = d |> Map.change u (fun _ -> d.[v] + 1 |> Some)
+                        let p = p |> Map.change u (fun _ -> Some v)
+                        q, d, p
+                    | _ -> q, d, p)
+                |||> bfs
+
+        let keysToMap k =
+            graph.Keys |> Seq.map (fun key -> key, k) |> Map
+
+        let p = ([ s ], keysToMap -1, keysToMap 0) |||> bfs
+
+        let rec getSum sum v =
+            if v = s || p |> Map.tryFind v |> Option.isNone then
+                sum
+            else
+                getSum (sum + 1) p.[v]
+
+        (0, graph.Keys)
+        ||> Seq.fold (fun res n ->
+            n
+            |> getSum 0
+            |> function
+                | sum when sum % 2 = 0 -> res + 1
+                | _ -> res)

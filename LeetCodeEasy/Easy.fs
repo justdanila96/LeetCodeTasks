@@ -46,7 +46,8 @@ module Easy =
             | 0 -> c
             | _ ->
                 let cc = c >>> 1
-                d >>> 2 |> calc <|| if k >= c + d then k - c - d, cc + d else k, cc
+                let kc = if k >= c + d then k - c - d, cc + d else k, cc
+                d >>> 2 |> calc <|| kc
 
         1 <<< 30 |> setd |> calc <|| (x, 0)
 
@@ -54,20 +55,20 @@ module Easy =
     let RomanToArabic s =
 
         let convMap =
-            Map
-                [ ("I", 1)
-                  ("IV", 4)
-                  ("V", 5)
-                  ("IX", 9)
-                  ("X", 10)
-                  ("XL", 40)
-                  ("L", 50)
-                  ("XC", 90)
-                  ("C", 100)
-                  ("CD", 400)
-                  ("D", 500)
-                  ("CM", 900)
-                  ("M", 1000) ]
+            [ "I", 1
+              "IV", 4
+              "V", 5
+              "IX", 9
+              "X", 10
+              "XL", 40
+              "L", 50
+              "XC", 90
+              "C", 100
+              "CD", 400
+              "D", 500
+              "CM", 900
+              "M", 1000 ]
+            |> Map
 
         let convert acc chunk =
             match chunk with

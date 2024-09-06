@@ -130,3 +130,7 @@ let HugeDownloadTest () =
            "song.mp3" |]
 
     Assert.AreEqual(files, result)
+
+[<Test>]
+let MessageVariantsTest () =
+    Assert.That([ 3, 2; 3, 4; 1, 3; 1, 2; 6, 5 ] |> Medium.MessageVariants 1, Is.EqualTo(2))
