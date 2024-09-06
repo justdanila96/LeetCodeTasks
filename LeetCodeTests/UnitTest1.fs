@@ -24,31 +24,31 @@ let MySqrtTest () =
 [<Test>]
 let AnagramTest () =
 
-    Assert.That(Easy.IsAnagram "anagram" "nagaram")
-    Assert.That(Easy.IsAnagram "rat" "car" |> not)
+    Assert.IsTrue(Easy.IsAnagram "anagram" "nagaram")
+    Assert.IsFalse(Easy.IsAnagram "rat" "car")
 
 [<Test>]
 let RomanToArabicTest () =
 
-    Assert.AreEqual(3, Easy.RomanToArabic "III")
-    Assert.AreEqual(58, Easy.RomanToArabic "LVIII")
-    Assert.AreEqual(1994, Easy.RomanToArabic "MCMXCIV")
-    Assert.AreEqual(3999, Easy.RomanToArabic "MMMCMXCIX")
-    Assert.AreEqual(2000, Easy.RomanToArabic "MM")
+    Assert.That(Easy.RomanToArabic "III", Is.EqualTo(3))
+    Assert.That(Easy.RomanToArabic "LVIII", Is.EqualTo(58))
+    Assert.That(Easy.RomanToArabic "MCMXCIV", Is.EqualTo(1994))
+    Assert.That(Easy.RomanToArabic "MMMCMXCIX", Is.EqualTo(3999))
+    Assert.That(Easy.RomanToArabic "MM", Is.EqualTo(2000))
 
 [<Test>]
 let LongestCommonPrefixTest () =
 
-    Assert.AreEqual("fl", Easy.longestCommonPrefix [| "flower"; "flow"; "flight" |])
-    Assert.AreEqual("", Easy.longestCommonPrefix [| "dog"; "racecar"; "car" |])
-    Assert.AreEqual("a", Easy.longestCommonPrefix [| "a"; "a"; "a" |])
-    Assert.AreEqual("", Easy.longestCommonPrefix [| ""; "abc"; "ert" |])
+    Assert.That(Easy.longestCommonPrefix [| "flower"; "flow"; "flight" |], Is.EqualTo("fl"))
+    Assert.That(Easy.longestCommonPrefix [| "dog"; "racecar"; "car" |], Is.EqualTo(""))
+    Assert.That(Easy.longestCommonPrefix [| "a"; "a"; "a" |], Is.EqualTo("a"))
+    Assert.That(Easy.longestCommonPrefix [| ""; "abc"; "ert" |], Is.EqualTo(""))
 
 [<Test>]
 let FizzBuzzTest () =
 
-    Assert.AreEqual([ "1"; "2"; "Fizz" ], Easy.FizzBuzz 3)
-    Assert.AreEqual([ "1"; "2"; "Fizz"; "4"; "Buzz" ], Easy.FizzBuzz 5)
+    Assert.That(Easy.FizzBuzz 3, Is.EqualTo([ "1"; "2"; "Fizz" ]))
+    Assert.That(Easy.FizzBuzz 5, Is.EqualTo([ "1"; "2"; "Fizz"; "4"; "Buzz" ]))
 
     Assert.AreEqual(
         [ "1"
@@ -71,10 +71,10 @@ let FizzBuzzTest () =
 
 [<Test>]
 let ExcelSheetColumnTitleTest () =
-    Assert.AreEqual("A", Easy.ExcelSheetColumnTitle 1)
-    Assert.AreEqual("AB", Easy.ExcelSheetColumnTitle 28)
-    Assert.AreEqual("ZY", Easy.ExcelSheetColumnTitle 701)
-    Assert.AreEqual("AAZ", Easy.ExcelSheetColumnTitle 728)
+    Assert.That(Easy.ExcelSheetColumnTitle 1, Is.EqualTo("A"))
+    Assert.That(Easy.ExcelSheetColumnTitle 28, Is.EqualTo("AB"))
+    Assert.That(Easy.ExcelSheetColumnTitle 701, Is.EqualTo("ZY"))
+    Assert.That(Easy.ExcelSheetColumnTitle 728, Is.EqualTo("AAZ"))
 
 [<Test>]
 let IsPalindromeTest () =
@@ -83,21 +83,21 @@ let IsPalindromeTest () =
 
 [<Test>]
 let IndexOfFirstOccurrenceTest () =
-    Assert.AreEqual(0, Easy.IndexOfFirstOccurrence "sadbutsad" "sad")
-    Assert.AreEqual(-1, Easy.IndexOfFirstOccurrence "leetcode" "leeto")
-    Assert.AreEqual(2, Easy.IndexOfFirstOccurrence "leetcode" "etc")
+    Assert.That(Easy.IndexOfFirstOccurrence "sadbutsad" "sad", Is.EqualTo(0))
+    Assert.That(Easy.IndexOfFirstOccurrence "leetcode" "leeto", Is.EqualTo(-1))
+    Assert.That(Easy.IndexOfFirstOccurrence "leetcode" "etc", Is.EqualTo(2))
 
 [<Test>]
 let LengthOfLastWordTest () =
-    Assert.AreEqual(5, Easy.LengthOfLastWord "Hello World")
-    Assert.AreEqual(4, Easy.LengthOfLastWord "   fly me   to   the moon  ")
-    Assert.AreEqual(6, Easy.LengthOfLastWord "luffy is still joyboy")
+    Assert.That(Easy.LengthOfLastWord "Hello World", Is.EqualTo(5))
+    Assert.That(Easy.LengthOfLastWord "   fly me   to   the moon  ", Is.EqualTo(4))
+    Assert.That(Easy.LengthOfLastWord "luffy is still joyboy", Is.EqualTo(6))
 
 [<Test>]
 let ArabicToRomanTest () =
-    Assert.AreEqual("MMMDCCXLIX", Medium.ArabicToRoman 3749)
-    Assert.AreEqual("LVIII", Medium.ArabicToRoman 58)
-    Assert.AreEqual("MCMXCIV", Medium.ArabicToRoman 1994)
+    Assert.That(Medium.ArabicToRoman 3749, Is.EqualTo("MMMDCCXLIX"))
+    Assert.That(Medium.ArabicToRoman 58, Is.EqualTo("LVIII"))
+    Assert.That(Medium.ArabicToRoman 1994, Is.EqualTo("MCMXCIV"))
 
 [<Test>]
 let HugeDownloadTest () =
@@ -129,8 +129,14 @@ let HugeDownloadTest () =
            "song(1).mp3"
            "song.mp3" |]
 
-    Assert.AreEqual(files, result)
+    CollectionAssert.AreEqual(files, result)
 
 [<Test>]
 let MessageVariantsTest () =
-    Assert.That([ 3, 2; 3, 4; 1, 3; 1, 2; 6, 5 ] |> Medium.MessageVariants 1, Is.EqualTo(2))
+    Assert.That([ 3, 2; 3, 4; 1, 3; 1, 2; 6, 5 ] |> Medium.MessageVariants 1, Is.EqualTo 2)
+
+    Assert.That(
+        [ 1, 2; 1, 7; 2, 1; 3, 7; 4, 5; 4, 6; 5, 4; 5, 7; 6, 4; 7, 1; 7, 3; 7, 5 ]
+        |> Medium.MessageVariants 1,
+        Is.EqualTo 4
+    )

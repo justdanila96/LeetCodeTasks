@@ -118,7 +118,7 @@ module Easy =
         |> Seq.takeWhile ((<>) ' ')
         |> Seq.length
 
-    // Пронумеровать дубликаты в списке файлов и отсортировать лексикографически
+    // Технокубок 2024. Отбор 1. Задача C
     let hugeDownload files =
 
         let addNumber number (str: string) =
